@@ -17,6 +17,7 @@ st.markdown(
 
 STATE_FILE = "backlog_state.json"
 
+# Распределение ролей на основе PRD и ТЗ
 ROLE_MAP = {
     "TASK-1.1": "UI/UX",
     "TASK-1.2": "Backend",
@@ -33,11 +34,12 @@ ROLE_MAP = {
     "TASK-3.2": "Data Science"
 }
 
+# Цвета для бейджей ролей (в стилистике PRD)
 ROLE_COLORS = {
-    "Data Science": "#FFD60A", 
-    "Backend": "#8E8E93",      
-    "Mobile Dev": "#FFFFFF",  
-    "UI/UX": "#E5E5EA"      
+    "Data Science": "#FFD60A", # Внимание / Интеллект
+    "Backend": "#8E8E93",      # Нейтральный системный
+    "Mobile Dev": "#FFFFFF",   # Чистый белый
+    "UI/UX": "#E5E5EA"         # Светло-серый монохром
 }
 
 TASKS = [
@@ -69,6 +71,15 @@ def save_state(state):
     with open(STATE_FILE, "w") as f:
         json.dump(state, f)
 
+def reset_progress():
+    """Сбрасывает весь прогресс"""
+    if os.path.exists(STATE_FILE):
+        os.remove(STATE_FILE)
+    for key in list(st.session_state.keys()):
+        if key.startswith("TASK-"):
+            del st.session_state[key]
+    st.rerun()
+
 def get_task_short_name(task_id):
     """Получает краткое название таска для отображения в блокерах"""
     for task in TASKS:
@@ -76,6 +87,10 @@ def get_task_short_name(task_id):
             name = task["name"]
             return (name[:22] + '...') if len(name) > 22 else name
     return task_id
+
+# Кнопка сброса прогресса
+if st.button("🔄 Сбросить прогресс"):
+    reset_progress()
 
 saved_data = load_state()
 for t in TASKS:
@@ -117,7 +132,7 @@ body { background-color: #121212; margin: 0; padding: 0; font-family: sans-serif
 .gantt-container { background-color: #1E1E1E; padding: 15px; border-radius: 12px; box-sizing: border-box; }
 .gantt-header { display: flex; border-bottom: 1px solid #3A3A3C; padding-bottom: 8px; margin-bottom: 10px; font-size: 12px; color: #8E8E93; }
 .gantt-role-col { width: 130px; min-width: 130px; font-weight: bold; color: #FFFFFF; font-size: 12px; padding-right: 10px; display: flex; align-items: center; }
-.gantt-task-name { width: 260px; min-width: 260px; font-weight: bold; color: #FFFFFF; font-size: 12px; padding-right: 10px; display: flex; align-items: center; }
+.gantt-task-name { width: 350px; min-width: 350px; font-weight: bold; color: #FFFFFF; font-size: 12px; padding-right: 10px; display: flex; align-items: center; }
 .gantt-days-col { display: flex; flex-grow: 1; }
 .gantt-day-head { flex: 1; text-align: center; min-width: 20px; border-left: 1px solid #2C2C2E; }
 .gantt-row { display: flex; height: 38px; align-items: center; border-bottom: 1px solid #2C2C2E; font-size: 13px; box-sizing: border-box; }
@@ -167,7 +182,7 @@ for t in filtered_tasks:
     timeline_html += f"""
  <div class="gantt-row" style="{status_style}">
      <div class="gantt-role-col">{role_badge}</div>
-     <div class="gantt-task-name"><b>[{t['id']}]</b> {t['name']}</div>
+     <div class="gantt-task-name" title="{t['name']}"><b>[{t['id']}]</b> {t['name']}</div>
      <div class="gantt-bar-area">
          <div class="gantt-bar" style="left: {start_pct}%; width: {width_pct}%; background-color: {bar_color}; color: {text_color};">
              {bar_text}

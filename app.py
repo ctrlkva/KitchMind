@@ -36,10 +36,10 @@ ROLE_MAP = {
 
 # Цвета для бейджей ролей (в стилистике PRD)
 ROLE_COLORS = {
-    "Data Science": "#FFD60A", # Внимание / Интеллект
-    "Backend": "#8E8E93",      # Нейтральный системный
-    "Mobile Dev": "#FFFFFF",   # Чистый белый
-    "UI/UX": "#E5E5EA"         # Светло-серый монохром
+    "Data Science": "#FFD60A",
+    "Backend": "#8E8E93",
+    "Mobile Dev": "#FFFFFF",
+    "UI/UX": "#E5E5EA"
 }
 
 TASKS = [
@@ -75,9 +75,11 @@ def reset_progress():
     """Сбрасывает весь прогресс"""
     if os.path.exists(STATE_FILE):
         os.remove(STATE_FILE)
-    for key in list(st.session_state.keys()):
-        if key.startswith("TASK-"):
-            del st.session_state[key]
+    # Явно очищаем все ключи задач из сессии
+    keys_to_delete = [key for key in st.session_state.keys() if key.startswith("TASK-")]
+    for key in keys_to_delete:
+        del st.session_state[key]
+    st.success("✅ Прогресс сброшен!")
     st.rerun()
 
 def get_task_short_name(task_id):
@@ -120,7 +122,7 @@ for t in TASKS:
 st.markdown("<p style='font-size:20px; font-weight:bold; margin-top:20px;'>🗺️ Дорожная карта проекта (Gantt Chart)</p>", unsafe_allow_html=True)
 
 total_days = 28
-calculated_height = 60 + (len(filtered_tasks) * 44)
+calculated_height = 60 + (len(filtered_tasks) * 54)
 if calculated_height < 150:
     calculated_height = 150
 
@@ -132,12 +134,12 @@ body { background-color: #121212; margin: 0; padding: 0; font-family: sans-serif
 .gantt-container { background-color: #1E1E1E; padding: 15px; border-radius: 12px; box-sizing: border-box; }
 .gantt-header { display: flex; border-bottom: 1px solid #3A3A3C; padding-bottom: 8px; margin-bottom: 10px; font-size: 12px; color: #8E8E93; }
 .gantt-role-col { width: 130px; min-width: 130px; font-weight: bold; color: #FFFFFF; font-size: 12px; padding-right: 10px; display: flex; align-items: center; }
-.gantt-task-name { width: 350px; min-width: 350px; font-weight: bold; color: #FFFFFF; font-size: 12px; padding-right: 10px; display: flex; align-items: center; }
+.gantt-task-name { width: 450px; min-width: 450px; font-weight: bold; color: #FFFFFF; font-size: 12px; padding-right: 10px; display: flex; align-items: center; }
 .gantt-days-col { display: flex; flex-grow: 1; }
 .gantt-day-head { flex: 1; text-align: center; min-width: 20px; border-left: 1px solid #2C2C2E; }
-.gantt-row { display: flex; height: 38px; align-items: center; border-bottom: 1px solid #2C2C2E; font-size: 13px; box-sizing: border-box; }
+.gantt-row { display: flex; min-height: 48px; align-items: center; border-bottom: 1px solid #2C2C2E; font-size: 13px; box-sizing: border-box; }
 .gantt-row .gantt-role-col { color: #8E8E93; font-weight: normal; }
-.gantt-row .gantt-task-name { color: #FFFFFF; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: normal; font-size: 13px;}
+.gantt-row .gantt-task-name { color: #FFFFFF; overflow: visible; white-space: normal; font-weight: normal; font-size: 13px; line-height: 1.4;}
 .gantt-bar-area { display: flex; flex-grow: 1; position: relative; height: 24px; background-color: #121212; border-radius: 4px; }
 .gantt-bar { position: absolute; height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-weight: bold; font-size: 11px; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
  </style>
@@ -163,7 +165,6 @@ for t in filtered_tasks:
     start_pct = ((t["start_day"] - 1) / total_days) * 100
     width_pct = (t["duration"] / total_days) * 100
     
-    # Логика текста внутри бара
     if blocked:
         short_name = get_task_short_name(b_id)
         bar_text = f"🔒 {short_name}"
@@ -174,7 +175,6 @@ for t in filtered_tasks:
         bar_color = t["color"]
         text_color = "#121212"
         
-    # Логика бейджа роли
     role = ROLE_MAP.get(t["id"], "General")
     r_color = ROLE_COLORS.get(role, "#8E8E93")
     role_badge = f'<span style="background-color: #2C2C2E; color: {r_color}; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; border: 1px solid {r_color}30;">{role}</span>'
@@ -182,7 +182,7 @@ for t in filtered_tasks:
     timeline_html += f"""
  <div class="gantt-row" style="{status_style}">
      <div class="gantt-role-col">{role_badge}</div>
-     <div class="gantt-task-name" title="{t['name']}"><b>[{t['id']}]</b> {t['name']}</div>
+     <div class="gantt-task-name"><b>[{t['id']}]</b> {t['name']}</div>
      <div class="gantt-bar-area">
          <div class="gantt-bar" style="left: {start_pct}%; width: {width_pct}%; background-color: {bar_color}; color: {text_color};">
              {bar_text}

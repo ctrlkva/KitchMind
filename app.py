@@ -9,15 +9,6 @@ st.markdown(
     <style>
     .main-title { font-size: 32px; font-weight: bold; color: #FFFFFF; margin-bottom: 5px; }
     .subtitle { font-size: 14px; color: #8E8E93; margin-bottom: 25px; }
-    .gantt-container { background-color: #1E1E1E; padding: 15px; border-radius: 12px; font-family: sans-serif; overflow-x: auto; }
-    .gantt-header { display: flex; border-bottom: 1px solid #3A3A3C; padding-bottom: 8px; margin-bottom: 10px; font-size: 12px; color: #8E8E93; }
-    .gantt-label-col { width: 250px; min-width: 250px; font-weight: bold; }
-    .gantt-days-col { display: flex; flex-grow: 1; }
-    .gantt-day-head { flex: 1; text-align: center; min-width: 20px; border-left: 1px solid #2C2C2E; }
-    .gantt-row { display: flex; padding: 6px 0; align-items: center; border-bottom: 1px solid #2C2C2E; font-size: 13px; }
-    .gantt-task-name { width: 250px; min-width: 250px; color: #FFFFFF; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 10px; }
-    .gantt-bar-area { display: flex; flex-grow: 1; position: relative; height: 24px; background-color: #121212; border-radius: 4px; }
-    .gantt-bar { position: absolute; height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-weight: bold; font-size: 11px; }
     </style>
     <div class="main-title">Интерактивный Роадмап и Бэклог проекта KitchMind</div>
     <div class="subtitle">Панель синхронизации: Таймлайн (Диаграмма Ганта), зависимости и подробное техническое задание (ТЗ) для каждого таска</div>
@@ -134,7 +125,7 @@ TASKS = [
         "duration": 3, 
         "start_day": 4, 
         "color": "#FF453A",
-        "tz": "Настройка системной фоновой службы Android с использованием WorkManager. Периодичность проверки локальной базы данных — каждые 12 часов. Воркер рассчитывает разницу во времени между текущим моментом и полем expiration_date для каждого продукта. Генерация локальных push-уведомлений происходит строго по расписанию: первый алерт среднего уровня отправляется ровно за 3 дня до просрочки, второй критический алерт — ровно за 24 часа. Тексты пушей берутся строго из регламента ToV в PRD."
+        "tz": "Настройка системной фоновой службы Android с использованием WorkManager. Периодичность проверки локальной базы данных — каждые 12 часов. Воркер рассчитывает разницу во времени между текущим моментом и полем expiration_date для каждого продукта. Генерация локальных push-уведомлений происходит строго по расписанию: первый алерт среднего уровня отправляется ровно за 3 дня до просрочки, второй критический алерт — ровно за 24 часа. Тексты пушей берутся строго из регламента ToV in PRD."
     },
     {
         "id": "TASK-2.1", 
@@ -227,7 +218,27 @@ for t in TASKS:
 st.markdown("<p style='font-size:20px; font-weight:bold; margin-top:20px;'>🗺️ Дорожная карта проекта (Gantt Chart)</p>", unsafe_allow_html=True)
 
 total_days = 28
+calculated_height = 60 + (len(filtered_tasks) * 44)
+if calculated_height < 150:
+    calculated_height = 150
+
 timeline_html = """
+<html>
+<head>
+<style>
+body { background-color: #121212; margin: 0; padding: 0; font-family: sans-serif; color: #FFFFFF; }
+.gantt-container { background-color: #1E1E1E; padding: 15px; border-radius: 12px; box-sizing: border-box; }
+.gantt-header { display: flex; border-bottom: 1px solid #3A3A3C; padding-bottom: 8px; margin-bottom: 10px; font-size: 12px; color: #8E8E93; }
+.gantt-label-col { width: 220px; min-width: 220px; font-weight: bold; }
+.gantt-days-col { display: flex; flex-grow: 1; }
+.gantt-day-head { flex: 1; text-align: center; min-width: 20px; border-left: 1px solid #2C2C2E; }
+.gantt-row { display: flex; height: 38px; align-items: center; border-bottom: 1px solid #2C2C2E; font-size: 13px; box-sizing: border-box; }
+.gantt-task-name { width: 220px; min-width: 220px; color: #FFFFFF; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 10px; }
+.gantt-bar-area { display: flex; flex-grow: 1; position: relative; height: 24px; background-color: #121212; border-radius: 4px; }
+.gantt-bar { position: absolute; height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-weight: bold; font-size: 11px; box-sizing: border-box; }
+</style>
+</head>
+<body>
 <div class="gantt-container">
     <div class="gantt-header">
         <div class="gantt-label-col">Этап / Задача</div>
@@ -266,8 +277,8 @@ for t in filtered_tasks:
     </div>
     """
 
-timeline_html += "</div>"
-st.components.v1.html(timeline_html, height=450, scrolling=True)
+timeline_html += "</div></body></html>"
+st.components.v1.html(timeline_html, height=calculated_height, scrolling=True)
 
 st.markdown("<p style='font-size:20px; font-weight:bold; margin-top:30px;'>📋 Интерактивное управление бэклогом задач</p>", unsafe_allow_html=True)
 

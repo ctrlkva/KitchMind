@@ -9,15 +9,6 @@ st.markdown(
     <style>
     .main-title { font-size: 32px; font-weight: bold; color: #FFFFFF; margin-bottom: 5px; }
     .subtitle { font-size: 14px; color: #8E8E93; margin-bottom: 25px; }
-    .gantt-container { background-color: #1E1E1E; padding: 15px; border-radius: 12px; font-family: sans-serif; overflow-x: auto; }
-    .gantt-header { display: flex; border-bottom: 1px solid #3A3A3C; padding-bottom: 8px; margin-bottom: 10px; font-size: 12px; color: #8E8E93; }
-    .gantt-label-col { width: 250px; min-width: 250px; font-weight: bold; }
-    .gantt-days-col { display: flex; flex-grow: 1; }
-    .gantt-day-head { flex: 1; text-align: center; min-width: 20px; border-left: 1px solid #2C2C2E; }
-    .gantt-row { display: flex; padding: 6px 0; align-items: center; border-bottom: 1px solid #2C2C2E; font-size: 13px; }
-    .gantt-task-name { width: 250px; min-width: 250px; color: #FFFFFF; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 10px; }
-    .gantt-bar-area { display: flex; flex-grow: 1; position: relative; height: 24px; background-color: #121212; border-radius: 4px; }
-    .gantt-bar { position: absolute; height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-weight: bold; font-size: 11px; }
     </style>
     <div class="main-title">Интерактивный Роадмап и Бэклог проекта KitchMind</div>
     <div class="subtitle">Панель синхронизации: Таймлайн (Диаграмма Ганта), зависимости и распределение ролей (Настя / Арсений)</div>
@@ -84,15 +75,28 @@ for t in TASKS:
 st.markdown("<p style='font-size:20px; font-weight:bold; margin-top:20px;'>🗺️ Дорожная карта проекта (Gantt Chart)</p>", unsafe_allow_html=True)
 
 total_days = 28
-timeline_html = """
+
+html_content = """
+<style>
+.gantt-container { background-color: #1E1E1E; padding: 15px; border-radius: 12px; font-family: sans-serif; overflow-x: auto; color: #FFFFFF; }
+.gantt-header { display: flex; border-bottom: 1px solid #3A3A3C; padding-bottom: 8px; margin-bottom: 10px; font-size: 12px; color: #8E8E93; }
+.gantt-label-col { width: 250px; min-width: 250px; font-weight: bold; }
+.gantt-days-col { display: flex; flex-grow: 1; }
+.gantt-day-head { flex: 1; text-align: center; min-width: 25px; border-left: 1px solid #2C2C2E; }
+.gantt-row { display: flex; padding: 8px 0; align-items: center; border-bottom: 1px solid #2C2C2E; font-size: 13px; }
+.gantt-task-name { width: 250px; min-width: 250px; color: #FFFFFF; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 10px; }
+.gantt-bar-area { display: flex; flex-grow: 1; position: relative; height: 26px; background-color: #121212; border-radius: 6px; width: 100%; min-width: 700px; }
+.gantt-bar { position: absolute; height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 8px; font-weight: bold; font-size: 11px; }
+</style>
 <div class="gantt-container">
     <div class="gantt-header">
         <div class="gantt-label-col">Этап / Задача</div>
         <div class="gantt-days-col">
 """
+
 for d in range(1, total_days + 1):
-    timeline_html += f'<div class="gantt-day-head">д{d}</div>'
-timeline_html += "</div></div>"
+    html_content += f'<div class="gantt-day-head">д{d}</div>'
+html_content += "</div></div>"
 
 for t in filtered_tasks:
     blocked, b_id = is_blocked(t["blockers"])
@@ -112,7 +116,7 @@ for t in filtered_tasks:
         bar_color = t["color"]
         text_color = "#121212"
         
-    timeline_html += f"""
+    html_content += f"""
     <div class="gantt-row" style="{status_style}">
         <div class="gantt-task-name"><b>[{t['id']}]</b> {t['name']}</div>
         <div class="gantt-bar-area">
@@ -123,8 +127,9 @@ for t in filtered_tasks:
     </div>
     """
 
-timeline_html += "</div>"
-st.markdown(timeline_html, unsafe_allow_html=True)
+html_content += "</div>"
+
+st.components.v1.html(html_content, height=450, scrolling=True)
 
 st.markdown("<p style='font-size:20px; font-weight:bold; margin-top:30px;'>📋 Интерактивное управление бэклогом задач</p>", unsafe_allow_html=True)
 
